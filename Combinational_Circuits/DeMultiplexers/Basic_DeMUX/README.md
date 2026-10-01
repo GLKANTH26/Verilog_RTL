@@ -1,4 +1,3 @@
-````markdown
 # Basic Demultiplexers
 
 This folder contains basic **1-to-4** and **1-to-8 Demultiplexer (DeMUX)** designs implemented using Verilog HDL.
@@ -13,25 +12,23 @@ A **Demultiplexer (DeMUX)** is also known as a **data distributor**.
 
 It has:
 
-- One data input
-- Multiple data outputs
-- Select lines
+* One data input
+* Multiple data outputs
+* Select lines
 
 For an `N`-output Demultiplexer:
 
-\[
-\text{Number of Select Lines} = \log_2(N)
-\]
+**Number of Select Lines = log₂(N)**
 
-Examples:
+### Examples
 
 | Demultiplexer | Data Input | Select Lines | Outputs |
-|---|---:|---:|---:|
-| 1:2 | 1 | 1 | 2 |
-| 1:4 | 1 | 2 | 4 |
-| 1:8 | 1 | 3 | 8 |
-| 1:16 | 1 | 4 | 16 |
-| 1:32 | 1 | 5 | 32 |
+| ------------- | ---------: | -----------: | ------: |
+| 1:2           |          1 |            1 |       2 |
+| 1:4           |          1 |            2 |       4 |
+| 1:8           |          1 |            3 |       8 |
+| 1:16          |          1 |            4 |      16 |
+| 1:32          |          1 |            5 |      32 |
 
 ---
 
@@ -48,7 +45,7 @@ Examples:
         IN ─────►│    DeMUX    │──► Y2
                  │             │──► Y3
                  └─────────────┘
-````
+```
 
 The select lines determine which output receives the input.
 
@@ -56,7 +53,7 @@ Only one output is selected at a time.
 
 ---
 
-# 3. 1-to-4 Demultiplexer
+## 3. 1-to-4 Demultiplexer
 
 A 1:4 Demultiplexer contains:
 
@@ -97,21 +94,10 @@ If `IN = 0`, all outputs are `0`.
 
 ### Boolean Expressions
 
-$$
-Y_0 = IN \cdot \overline{S_1} \cdot \overline{S_0}
-$$
-
-$$
-Y_1 = IN \cdot \overline{S_1} \cdot S_0
-$$
-
-$$
-Y_2 = IN \cdot S_1 \cdot \overline{S_0}
-$$
-
-$$
-Y_3 = IN \cdot S_1 \cdot S_0
-$$
+* **Y0 = IN · S1' · S0'**
+* **Y1 = IN · S1' · S0**
+* **Y2 = IN · S1 · S0'**
+* **Y3 = IN · S1 · S0**
 
 Therefore:
 
@@ -124,7 +110,7 @@ S1 S0 = 11 → IN → Y3
 
 ---
 
-# 4. 1-to-8 Demultiplexer
+## 4. 1-to-8 Demultiplexer
 
 A 1:8 Demultiplexer contains:
 
@@ -161,41 +147,18 @@ A 1:8 Demultiplexer contains:
 
 ### Boolean Expressions
 
-$$
-Y_0 = IN\overline{S_2}\overline{S_1}\overline{S_0}
-$$
-
-$$
-Y_1 = IN\overline{S_2}\overline{S_1}S_0
-$$
-
-$$
-Y_2 = IN\overline{S_2}S_1\overline{S_0}
-$$
-
-$$
-Y_3 = IN\overline{S_2}S_1S_0
-$$
-
-$$
-Y_4 = INS_2\overline{S_1}\overline{S_0}
-$$
-
-$$
-Y_5 = INS_2\overline{S_1}S_0
-$$
-
-$$
-Y_6 = INS_2S_1\overline{S_0}
-$$
-
-$$
-Y_7 = INS_2S_1S_0
-$$
+* **Y0 = IN · S2' · S1' · S0'**
+* **Y1 = IN · S2' · S1' · S0**
+* **Y2 = IN · S2' · S1 · S0'**
+* **Y3 = IN · S2' · S1 · S0**
+* **Y4 = IN · S2 · S1' · S0'**
+* **Y5 = IN · S2 · S1' · S0**
+* **Y6 = IN · S2 · S1 · S0'**
+* **Y7 = IN · S2 · S1 · S0**
 
 ---
 
-# 5. Files in This Folder
+## 5. Files in This Folder
 
 ```text
 Basic_DeMUX/
@@ -216,7 +179,7 @@ Basic_DeMUX/
 
 ---
 
-# 6. RTL Implementation
+## 6. RTL Implementation
 
 The Demultiplexers in this folder are **combinational RTL designs**.
 
@@ -227,25 +190,7 @@ The basic RTL operation is:
 3. Route the input to the selected output.
 4. Keep all other outputs at `0`.
 
-Conceptually:
-
-```text
-                 Select Lines
-                      │
-                      ▼
-               ┌────────────┐
-               │ Selection  │
-               │   Logic    │
-               └─────┬──────┘
-                     │
-                     ▼
-               Selected Output
-                     │
-                     ▼
-                    IN
-```
-
-The RTL description can be implemented using constructs such as:
+The designs can be implemented using:
 
 * `always @(*)`
 * `case`
@@ -254,13 +199,11 @@ The RTL description can be implemented using constructs such as:
 
 ---
 
-# 7. Demultiplexer Using a Decoder
+## 7. Demultiplexer Using a Decoder
 
 A Demultiplexer is closely related to a decoder.
 
-A decoder generates one active output based on the select inputs. A Demultiplexer additionally uses the data input to control the selected output.
-
-For a 1:4 Demultiplexer:
+A decoder generates an active output based on the select inputs. A Demultiplexer additionally uses the data input to control the selected output.
 
 ```text
                  S1 S0
@@ -280,21 +223,17 @@ For a 1:4 Demultiplexer:
 
 This gives the relationship:
 
-```text
-Decoder + Data Input
-        ↓
-   Demultiplexer
-```
+**Decoder + Data Input → Demultiplexer**
 
 Understanding this relationship is useful when designing hierarchical Demultiplexers.
 
 ---
 
-# 8. Other Implementation Methods for Practice
+## 8. Other Implementation Methods for Practice
 
-The current folder contains the basic RTL implementations. The following approaches can be implemented as additional practice.
+The current folder focuses on basic RTL implementations. The following approaches can be implemented as additional practice.
 
-## 8.1 Gate-Level Implementation
+### 8.1 Gate-Level Implementation
 
 A 1:4 Demultiplexer can be implemented using NOT and AND gates.
 
@@ -305,77 +244,37 @@ Y2 = IN · S1  · S0'
 Y3 = IN · S1  · S0
 ```
 
----
-
-## 8.2 NAND-Only Implementation
+### 8.2 NAND-Only Implementation
 
 Implement the complete Demultiplexer using only NAND gates.
 
 This helps in understanding universal-gate based digital design.
 
----
-
-## 8.3 NOR-Only Implementation
+### 8.3 NOR-Only Implementation
 
 Implement the complete Demultiplexer using only NOR gates.
 
 This provides additional practice with universal logic gates.
 
----
-
-## 8.4 Continuous Assignment
+### 8.4 Continuous Assignment
 
 The Demultiplexer can be described using `assign` statements based on its Boolean expressions.
 
-For example:
-
-```text
-Y0 = IN · S1' · S0'
-Y1 = IN · S1' · S0
-Y2 = IN · S1  · S0'
-Y3 = IN · S1  · S0
-```
-
----
-
-## 8.5 `if-else` Implementation
+### 8.5 `if-else` Implementation
 
 The select lines can be evaluated using conditional statements.
 
-Conceptually:
-
-```text
-if select == 00
-    Y0 = IN
-else if select == 01
-    Y1 = IN
-else if select == 10
-    Y2 = IN
-else
-    Y3 = IN
-```
-
-All other outputs must remain `0`.
-
----
-
-## 8.6 Conditional Operator
+### 8.6 Conditional Operator
 
 A Demultiplexer can also be implemented using the conditional operator.
 
-This is useful for practicing compact combinational RTL descriptions.
-
----
-
-## 8.7 Decoder-Based Implementation
+### 8.7 Decoder-Based Implementation
 
 Another useful implementation is to use a decoder to generate the output selection signals and then route the data input accordingly.
 
-This approach becomes particularly useful for hierarchical designs.
-
 ---
 
-# 9. Demultiplexer Sizes to Practice
+## 9. Demultiplexer Sizes to Practice
 
 After implementing 1:4 and 1:8 Demultiplexers, the following designs can be practiced:
 
@@ -388,12 +287,6 @@ After implementing 1:4 and 1:8 Demultiplexers, the following designs can be prac
 1 : 64
 ```
 
-The number of select lines is:
-
-$$
-S = \log_2(N)
-$$
-
 | Demultiplexer | Select Lines |
 | ------------- | -----------: |
 | 1:2           |            1 |
@@ -405,11 +298,13 @@ $$
 
 ---
 
-# 10. Verification
+## 10. Verification
 
 Each RTL design has a corresponding testbench.
 
 ### 1:4 Demultiplexer
+
+`1by4_tb.v` verifies all possible select-line combinations.
 
 ```text
 1by4.v
@@ -417,15 +312,17 @@ Each RTL design has a corresponding testbench.
    ▼
 1by4_tb.v
    │
-   ├── Test IN = 0
-   ├── Test IN = 1
-   ├── Test S1S0 = 00
-   ├── Test S1S0 = 01
-   ├── Test S1S0 = 10
-   └── Test S1S0 = 11
+   ├── IN = 0
+   ├── IN = 1
+   ├── S1S0 = 00
+   ├── S1S0 = 01
+   ├── S1S0 = 10
+   └── S1S0 = 11
 ```
 
 ### 1:8 Demultiplexer
+
+`1by8_tb.v` verifies all possible select-line combinations.
 
 ```text
 1by8.v
@@ -433,19 +330,19 @@ Each RTL design has a corresponding testbench.
    ▼
 1by8_tb.v
    │
-   ├── Test IN = 0
-   ├── Test IN = 1
-   ├── Test S2S1S0 = 000
-   ├── Test S2S1S0 = 001
-   ├── Test S2S1S0 = 010
-   ├── Test S2S1S0 = 011
-   ├── Test S2S1S0 = 100
-   ├── Test S2S1S0 = 101
-   ├── Test S2S1S0 = 110
-   └── Test S2S1S0 = 111
+   ├── IN = 0
+   ├── IN = 1
+   ├── S2S1S0 = 000
+   ├── S2S1S0 = 001
+   ├── S2S1S0 = 010
+   ├── S2S1S0 = 011
+   ├── S2S1S0 = 100
+   ├── S2S1S0 = 101
+   ├── S2S1S0 = 110
+   └── S2S1S0 = 111
 ```
 
-The testbench should verify that:
+The testbench verifies that:
 
 * Only the selected output receives the input.
 * All unselected outputs remain `0`.
@@ -454,7 +351,7 @@ The testbench should verify that:
 
 ---
 
-# 11. MUX vs Demultiplexer
+## 11. MUX vs Demultiplexer
 
 | Feature        | Multiplexer    | Demultiplexer     |
 | -------------- | -------------- | ----------------- |
@@ -491,7 +388,7 @@ IN ──► DeMUX ├──► Y1
 
 ---
 
-# 12. Applications
+## 12. Applications
 
 Demultiplexers are commonly used in:
 
@@ -508,7 +405,7 @@ Demultiplexers are commonly used in:
 
 ---
 
-# 13. Learning Progression
+## 13. Learning Progression
 
 ```text
 1:2 DeMUX
@@ -537,7 +434,7 @@ System-Level Applications
 
 ---
 
-# 14. Key Concepts Practiced
+## 14. Key Concepts Practiced
 
 This folder provides practice with:
 
@@ -559,7 +456,7 @@ This folder provides practice with:
 
 ## Summary
 
-The `Basic_DeMUX` folder contains fundamental 1:4 and 1:8 Demultiplexer designs and their corresponding testbenches.
+The `Basic_DeMUX` folder contains fundamental **1:4** and **1:8 Demultiplexer** designs along with their corresponding testbenches.
 
 ```text
 Basic DeMUX
@@ -569,7 +466,4 @@ Basic DeMUX
      └── 1:8 DeMUX
 ```
 
-These designs provide the foundation for more advanced Demultiplexer implementations such as hierarchical, parameterized, and decoder-based architectures.
-
-```
-```
+These designs provide the foundation for more advanced Demultiplexer implementations such as **hierarchical, parameterized, and decoder-based architectures**.
