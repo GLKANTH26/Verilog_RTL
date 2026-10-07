@@ -1,153 +1,85 @@
 # Asynchronous Counters
 
-This folder contains RTL implementations of **asynchronous (ripple) counters** using JK and T flip-flops.
+Asynchronous counters are sequential circuits in which the clock signal is applied to the first flip-flop, while the outputs of preceding flip-flops are used to trigger subsequent flip-flops.
 
-The designs demonstrate:
+They are also called **ripple counters** because the state transition propagates from one flip-flop to the next.
 
-- Ripple-counter operation
-- Cascaded flip-flop clocking
-- Up-counting
-- Frequency division
-- JK/T flip-flop based counter design
-- Truncated counting
-- Reset behavior
-- Propagation delay in asynchronous counters
-- Hierarchical reuse of the existing JK flip-flop
+This folder contains implementations of:
+
+- 2-bit Ripple Counter
+- 3-bit Ripple Counter
+- 4-bit Ripple Counter
+- 4-bit Ripple Counter using JK Flip-Flops
+- Truncated Ripple Counter
 
 ---
 
 ## Folder Structure
 
 ```text
-Asynchronous/
-├── rc_2.v
-├── rc_2_tb.v
-├── rc_3.v
-├── rc_3_tb.v
-├── rc_4.v
-├── rc_4_tb.v
-├── ripple_counter.v
-├── ripple_counter_tb.v
-├── truncate.v
-├── truncate_tb.v
-└── README.md
+Counters/
+├── Asynchronous/
+│   ├── rc_2.v
+│   ├── rc_3.v
+│   ├── rc_4.v
+│   ├── ripple_counter.v
+│   ├── truncate.v
+│   └── ...
+│
+└── Synchronous/
+    └── ...
 ```
 
 | File | Description |
 |---|---|
-| `rc_2.v` | 4-bit asynchronous counter using JK flip-flops |
-| `rc_2_tb.v` | Testbench for `rc_2.v` |
-| `rc_3.v` | 4-bit asynchronous counter using a different clock-edge/cascade configuration |
-| `rc_3_tb.v` | Testbench for `rc_3.v` |
-| `rc_4.v` | 4-bit asynchronous counter using T flip-flops |
-| `rc_4_tb.v` | Testbench for `rc_4.v` |
-| `ripple_counter.v` | Ripple counter using the existing JK flip-flop |
-| `ripple_counter_tb.v` | Testbench for `ripple_counter.v` |
-| `truncate.v` | Truncated asynchronous counter |
-| `truncate_tb.v` | Testbench for `truncate.v` |
+| `rc_2.v` | 2-bit Ripple Counter |
+| `rc_3.v` | 3-bit Ripple Counter |
+| `rc_4.v` | 4-bit Ripple Counter |
+| `ripple_counter.v` | 4-bit Ripple Counter using JK Flip-Flops |
+| `truncate.v` | Truncated Ripple Counter |
 
 ---
 
-## What Is a Counter?
+## What Is an Asynchronous Counter?
 
-A counter is a sequential circuit that moves through a predefined sequence of states in response to clock events.
+An asynchronous counter is a counter in which **all flip-flops do not receive the same clock signal**.
 
-For a 4-bit binary up counter:
+Only the first flip-flop receives the external clock.
+
+The output of one flip-flop becomes the clock input of the next flip-flop.
 
 ```text
-0000
-  ↓
-0001
-  ↓
-0010
-  ↓
-0011
-  ↓
-0100
-  ↓
-...
-1110
-  ↓
-1111
-  ↓
-0000
+CLK
+ │
+ ▼
+┌─────┐      ┌─────┐      ┌─────┐      ┌─────┐
+│ FF0 │─Q0──►│ FF1 │─Q1──►│ FF2 │─Q2──►│ FF3 │
+└─────┘      └─────┘      └─────┘      └─────┘
+   │            │            │            │
+   Q0           Q1           Q2           Q3
 ```
 
-A 4-bit counter has:
-
-\[
-2^4=16
-\]
-
-possible states.
-
-Therefore, a normal 4-bit binary counter is a **MOD-16 counter**.
+The state change therefore **ripples** through the flip-flops.
 
 ---
 
-## Why Counters Are Required
+## Why Is It Called a Ripple Counter?
 
-Counters are used whenever a digital system needs to:
+When the external clock changes, the first flip-flop changes first.
 
-- Count clock pulses
-- Count events
-- Generate timing sequences
-- Divide clock frequency
-- Generate addresses
-- Control sequential operations
-- Implement timers
-- Generate periodic control signals
+Its output then triggers the next flip-flop.
 
-Typical structure:
+The next flip-flop changes after that.
+
+This continues through the counter.
 
 ```text
-Clock
-  │
-  ▼
-Counter
-  │
-  ├──► Event counting
-  ├──► Timing generation
-  ├──► Frequency division
-  ├──► Address generation
-  └──► Control sequencing
+CLK → FF0 → FF1 → FF2 → FF3
+       ↓     ↓     ↓     ↓
+      Q0    Q1    Q2    Q3
 ```
 
----
-
-## Why Asynchronous Counters?
-
-An asynchronous counter is useful when a simple counter with relatively low hardware complexity is required.
-
-The key characteristic is:
-
-> **Only the first flip-flop receives the external clock. The subsequent flip-flops are clocked by outputs of preceding flip-flops.**
-
-```text
-External CLK
-     │
-     ▼
-   ┌────┐
-   │ FF0│
-   └─┬──┘
-     │ Q0
-     ▼
-   ┌────┐
-   │ FF1│
-   └─┬──┘
-     │ Q1
-     ▼
-   ┌────┐
-   │ FF2│
-   └─┬──┘
-     │ Q2
-     ▼
-   ┌────┐
-   │ FF3│
-   └────┘
-```
-
-Because the clocking propagates from one stage to the next, the circuit is called a **ripple counter**.
+The state transition therefore propagates like a ripple.
 
 ---
 
@@ -155,200 +87,654 @@ Because the clocking propagates from one stage to the next, the circuit is calle
 
 | Feature | Asynchronous Counter | Synchronous Counter |
 |---|---|---|
-| External clock | First flip-flop | All flip-flops |
-| Clock for later stages | Previous FF output | Common clock |
-| State transition | Propagates stage by stage | All FFs respond to same clock |
-| Propagation delay | Accumulates | Much smaller |
-| Hardware complexity | Lower | Higher |
+| Clock | Rippled between flip-flops | Common clock |
+| State transition | Stage-by-stage | Same clock edge |
+| Propagation delay | Accumulates | Lower |
 | Maximum speed | Lower | Higher |
-| Main characteristic | Ripple effect | Common-clock operation |
-
-### Asynchronous
-
-```text
-CLK → FF0 → FF1 → FF2 → FF3
-```
-
-### Synchronous
-
-```text
-          ┌──► FF0
-          │
-          ├──► FF1
-CLK ──────┼──► FF2
-          │
-          └──► FF3
-```
-
-The synchronous version will be covered separately in the `Synchronous` folder.
+| Hardware | Simple | More logic may be required |
+| Timing | More difficult | Easier |
+| Main characteristic | Ripple propagation | Simultaneous update |
 
 ---
 
-## Ripple Counter Architecture
+# Ripple Counter Principle
 
-A JK flip-flop toggles when:
+A ripple counter can be constructed using flip-flops configured to toggle.
+
+For a JK flip-flop:
 
 ```text
 J = 1
 K = 1
+```
+
+causes the flip-flop to toggle whenever its active clock edge occurs.
+
+```text
+      J = 1
+      K = 1
+        │
+        ▼
+     ┌──────┐
+CLK ─►│ JK FF│──► Q
+     └──────┘
+```
+
+The output `Q` of one stage is then used as the clock for the next stage.
+
+---
+
+# 2-Bit Ripple Counter
+
+The 2-bit implementation is provided in:
+
+```text
+rc_2.v
+```
+
+A 2-bit ripple counter contains two flip-flops.
+
+```text
+CLK ──► FF0 ──► FF1
+         │       │
+         Q0      Q1
+```
+
+The counter produces:
+
+```text
+00
+01
+10
+11
+00
+...
 ```
 
 Therefore:
 
 ```text
-J = K = 1
-     │
-     ▼
-Toggle operation
+MOD = 4
 ```
 
-A chain of such flip-flops can be used to create a binary counter.
+In general, an N-bit binary ripple counter has:
 
 ```text
-             J=1 K=1
-CLK ───────► ┌──────┐
-             │ JK0  │
-             └──┬───┘
-                Q0
-                 │
-                 ▼
-             ┌──────┐
-             │ JK1  │
-             └──┬───┘
-                Q1
-                 │
-                 ▼
-             ┌──────┐
-             │ JK2  │
-             └──┬───┘
-                Q2
-                 │
-                 ▼
-             ┌──────┐
-             │ JK3  │
-             └──────┘
+MOD = 2^N
 ```
 
-Each stage represents one binary bit.
+valid states.
 
 ---
 
-## Why JK/T Flip-Flops Work for Counters
+## 2-Bit Counter State Sequence
 
-A counter requires the individual bits to toggle.
+```text
+Clock    Q1 Q0
+Reset    0  0
+1        0  1
+2        1  0
+3        1  1
+4        0  0
+```
 
-For a T flip-flop:
-
-\[
-T=1 \Rightarrow Q_{next}=\overline{Q}
-\]
-
-For a JK flip-flop:
-
-\[
-J=K=1 \Rightarrow Q_{next}=\overline{Q}
-\]
-
-Therefore, both can be used as toggle elements in a counter.
-
-| Flip-Flop | Counter Configuration |
-|---|---|
-| JK | `J = 1`, `K = 1` |
-| T | `T = 1` |
+The LSB changes on every input clock transition, while the next stage changes at a lower frequency.
 
 ---
 
-## `rc_2.v` — JK-Based Ripple Counter
+# 3-Bit Ripple Counter
 
-`rc_2.v` implements a 4-bit asynchronous counter using JK flip-flops.
+The 3-bit implementation is provided in:
 
-The JK flip-flops are configured for toggle operation:
+```text
+rc_3.v
+```
+
+Architecture:
+
+```text
+CLK ──► FF0 ──► FF1 ──► FF2
+         │       │       │
+         Q0      Q1      Q2
+```
+
+The counter produces:
+
+```text
+000
+001
+010
+011
+100
+101
+110
+111
+000
+...
+```
+
+Therefore:
+
+```text
+MOD = 2^3
+    = 8
+```
+
+---
+
+## 3-Bit Counter State Sequence
+
+```text
+Clock    Q2 Q1 Q0
+Reset    0  0  0
+1        0  0  1
+2        0  1  0
+3        0  1  1
+4        1  0  0
+5        1  0  1
+6        1  1  0
+7        1  1  1
+8        0  0  0
+```
+
+---
+
+# 4-Bit Ripple Counter
+
+The 4-bit implementation is provided in:
+
+```text
+rc_4.v
+```
+
+The architecture is:
+
+```text
+CLK ──► FF0 ──► FF1 ──► FF2 ──► FF3
+         │       │       │       │
+         Q0      Q1      Q2      Q3
+```
+
+The counter produces:
+
+```text
+0000
+0001
+0010
+0011
+0100
+0101
+0110
+0111
+1000
+...
+1111
+0000
+```
+
+Therefore:
+
+```text
+MOD = 2^4
+    = 16
+```
+
+---
+
+# Ripple Counter Using JK Flip-Flops
+
+The file:
+
+```text
+ripple_counter.v
+```
+
+implements a 4-bit ripple counter using JK flip-flops.
+
+The basic structure is:
+
+```text
+              ┌─────────┐
+CLK ─────────►│ JK FF0  │
+              │ J=1 K=1 │
+              └────┬────┘
+                   Q0
+                    │
+                    ▼
+              ┌─────────┐
+              │ JK FF1  │
+              │ J=1 K=1 │
+              └────┬────┘
+                   Q1
+                    │
+                    ▼
+              ┌─────────┐
+              │ JK FF2  │
+              │ J=1 K=1 │
+              └────┬────┘
+                   Q2
+                    │
+                    ▼
+              ┌─────────┐
+              │ JK FF3  │
+              │ J=1 K=1 │
+              └─────────┘
+                   Q3
+```
+
+Each JK flip-flop operates in toggle mode because:
 
 ```text
 J = 1
 K = 1
 ```
 
-The clocking is cascaded between stages.
+---
 
-Conceptually:
+## JK Flip-Flop Toggle Operation
+
+For a JK flip-flop:
+
+| J | K | Operation |
+|---|---|---|
+| 0 | 0 | Hold |
+| 0 | 1 | Reset |
+| 1 | 0 | Set |
+| 1 | 1 | Toggle |
+
+Therefore, when:
+
+```text
+J = 1
+K = 1
+```
+
+the output changes state at every active clock edge.
+
+This makes the JK flip-flop suitable for constructing ripple counters.
+
+---
+
+# Frequency Division
+
+Each flip-flop in a binary ripple counter divides the frequency by 2.
+
+For the first stage:
+
+```text
+f_Q0 = f_CLK / 2
+```
+
+For the second stage:
+
+```text
+f_Q1 = f_CLK / 4
+```
+
+For the third stage:
+
+```text
+f_Q2 = f_CLK / 8
+```
+
+For the fourth stage:
+
+```text
+f_Q3 = f_CLK / 16
+```
+
+In general:
+
+```text
+f_Qn = f_CLK / 2^(n+1)
+```
+
+where `n = 0` represents the first flip-flop.
+
+---
+
+## Example
+
+If:
+
+```text
+f_CLK = 100 MHz
+```
+
+then:
+
+```text
+Q0 = 100 MHz / 2
+   = 50 MHz
+
+Q1 = 100 MHz / 4
+   = 25 MHz
+
+Q2 = 100 MHz / 8
+   = 12.5 MHz
+
+Q3 = 100 MHz / 16
+   = 6.25 MHz
+```
+
+The MSB of a 4-bit ripple counter therefore has a frequency of:
+
+```text
+f_Q3 = f_CLK / 16
+```
+
+---
+
+# Why Frequency Division Occurs
+
+A toggle flip-flop changes its output once for every active clock edge.
+
+Therefore, one complete output cycle requires two clock transitions.
+
+Hence:
+
+```text
+f_OUT = f_CLK / 2
+```
+
+When multiple toggle flip-flops are cascaded:
+
+```text
+CLK → /2 → /2 → /2 → /2
+```
+
+the total division becomes:
+
+```text
+2 × 2 × 2 × 2 = 16
+```
+
+Therefore:
+
+```text
+f_OUT = f_CLK / 16
+```
+
+for a 4-bit counter's MSB.
+
+---
+
+# Asynchronous Propagation Delay
+
+The major limitation of a ripple counter is **cumulative propagation delay**.
+
+The clock first reaches FF0.
+
+After FF0 changes, its output reaches FF1.
+
+After FF1 changes, its output reaches FF2.
+
+This continues through the counter.
 
 ```text
 CLK
  │
  ▼
-FF0
- │
- └──► next clock
-        │
-        ▼
-       FF1
-        │
-        └──► next clock
-               │
-               ▼
-              FF2
-               │
-               └──► next clock
-                      │
-                      ▼
-                     FF3
+FF0 ──delay──► FF1 ──delay──► FF2 ──delay──► FF3
 ```
 
-The particular `Q`/`Q̅` connection determines which clock transition activates the next stage.
+Therefore, the total settling time increases with the number of flip-flops.
 
 ---
 
-## Clock Propagation in `rc_2`
+## Propagation Delay
 
-The design uses the complemented output of each stage to clock the following stage.
-
-Conceptually:
+If the propagation delay of each flip-flop is approximately:
 
 ```text
-CLK → FF0
-Q̅0 → FF1 clock
-Q̅1 → FF2 clock
-Q̅2 → FF3 clock
+t_PD
 ```
 
-When a lower-order bit changes from:
+then for an N-bit ripple counter, the worst-case accumulated delay is approximately:
 
 ```text
-1 → 0
+t_total ≈ N × t_PD
 ```
 
-its complemented output changes:
+This is an approximate conceptual relationship. Actual timing depends on the flip-flop implementation, clock polarity, loading, PVT conditions, and library characteristics.
+
+---
+
+# Ripple Counter Timing
+
+The first flip-flop responds directly to the external clock.
+
+The second flip-flop responds to the first flip-flop.
+
+The third responds to the second.
+
+Therefore, during a state transition, intermediate states may briefly appear.
+
+For example, a transition from:
 
 ```text
-0 → 1
+0111 → 1000
 ```
 
-creating the required rising edge for the next stage.
+does not necessarily happen instantaneously.
 
-This produces the binary carry behavior.
+The internal transitions can ripple:
+
+```text
+0111
+ ↓
+0110
+ ↓
+0100
+ ↓
+0000
+ ↓
+1000
+```
+
+The actual transient sequence depends on the clocking scheme and flip-flop polarity.
+
+This is one of the main reasons ripple counters are unsuitable for high-speed synchronous logic.
+
+---
+
+# Asynchronous Counter Clocking
+
+The important characteristic is:
+
+```text
+Only the first flip-flop receives the external clock.
+```
+
+The remaining flip-flops are clocked by preceding outputs.
+
+```text
+External CLK
+     │
+     ▼
+   FF0
+     │
+     Q0
+     ▼
+   FF1
+     │
+     Q1
+     ▼
+   FF2
+     │
+     Q2
+     ▼
+   FF3
+```
+
+This is what makes the counter asynchronous.
+
+---
+
+# Reset Behavior
+
+The reset implementation depends on the particular RTL file.
+
+The asynchronous counter designs in this repository use reset to force the counter into a known state.
+
+An asynchronous reset does not wait for the clock.
+
+For an active-low reset:
+
+```text
+rst = 0 → Reset immediately
+rst = 1 → Normal operation
+```
+
+For an active-high reset:
+
+```text
+rst = 1 → Reset immediately
+rst = 0 → Normal operation
+```
+
+The exact polarity should always be checked from the `always` block and reset condition in each implementation.
+
+---
+
+# Truncated Counter
+
+The file:
+
+```text
+truncate.v
+```
+
+implements a truncated ripple counter.
+
+A normal N-bit binary counter has:
+
+```text
+MOD = 2^N
+```
+
+A truncated counter intentionally resets or changes its sequence before reaching all `2^N` states.
+
+For example, a 4-bit counter normally has:
+
+```text
+MOD = 16
+```
+
+A truncated counter can be designed to operate with fewer states.
+
+---
+
+## Why Truncate a Counter?
+
+Truncation is useful when a specific modulus is required.
+
+Examples include:
+
+```text
+MOD-3
+MOD-5
+MOD-6
+MOD-10
+MOD-12
+```
+
+A common example is a decade counter:
+
+```text
+0 → 1 → 2 → ... → 9 → 0
+```
+
+which has:
+
+```text
+MOD = 10
+```
+
+instead of the natural 16 states of a 4-bit binary counter.
+
+---
+
+# Truncation Logic
+
+The basic concept is:
+
+```text
+Counter
+   │
+   ▼
+State Detection
+   │
+   ▼
+Reset / Clear
+   │
+   ▼
+Initial State
+```
+
+The counter detects a particular state and uses that condition to force the counter back to its starting state.
 
 For example:
 
 ```text
+0000
 0001
-  ↓
 0010
+0011
+0100
+0101
+...
 ```
 
-`Q0` changes:
+When the selected terminal state is detected:
 
 ```text
-1 → 0
+State Detection
+       │
+       ▼
+     RESET
+       │
+       ▼
+     0000
 ```
 
-which causes the next stage to toggle.
+The counter therefore cycles through only the required number of states.
 
 ---
 
-## Binary Counting Sequence
+# Modulus of an Asynchronous Binary Counter
 
-For a 4-bit up counter:
+For an N-bit binary ripple counter:
+
+```text
+MOD = 2^N
+```
+
+Examples:
+
+```text
+N = 2 → MOD = 4
+N = 3 → MOD = 8
+N = 4 → MOD = 16
+N = 5 → MOD = 32
+N = 6 → MOD = 64
+```
+
+For a truncated counter:
+
+```text
+MOD < 2^N
+```
+
+when fewer than all possible binary states are used.
+
+---
+
+# Counter State Representation
+
+A binary ripple counter naturally generates binary states.
+
+For a 4-bit counter:
 
 ```text
 0000
@@ -367,168 +753,76 @@ For a 4-bit up counter:
 1101
 1110
 1111
+```
+
+Then the sequence returns to:
+
+```text
 0000
 ```
 
-The counter therefore operates as:
+---
 
-\[
-MOD=16
-\]
+# Applications
+
+Asynchronous counters are useful in applications where very high-speed synchronous operation is not required.
+
+Common applications include:
+
+- Frequency division
+- Simple event counting
+- Digital clocks
+- Low-speed timing circuits
+- Frequency counters
+- Prescalers
+- Clock divider circuits
+- Simple sequence generation
+- Low-cost control circuits
 
 ---
 
-## `rc_3.v` — Alternative Ripple Configuration
+# Advantages
 
-`rc_3.v` implements another 4-bit asynchronous counter configuration.
-
-Its JK flip-flop uses a different clock/reset arrangement:
-
-```verilog
-always @(negedge clk or posedge rst)
-```
-
-Therefore, the local flip-flop responds to the **falling edge of its clock** and uses an **active-high asynchronous reset**.
-
-The cascade uses the output of one stage to clock the next stage.
-
-```text
-CLK → FF0
-Q0  → FF1
-Q1  → FF2
-Q2  → FF3
-```
-
-This demonstrates an important asynchronous-counter design parameter:
-
-> **The selected clock edge and whether `Q` or `Q̅` is cascaded determine the counting behavior.**
+- Simple architecture
+- Simple RTL
+- Low combinational logic requirement
+- Easy to implement using toggle flip-flops
+- Natural binary counting sequence
+- Useful for frequency division
+- Fewer logic gates compared with many synchronous-counter implementations
 
 ---
 
-## `rc_4.v` — T Flip-Flop Based Counter
+# Limitations
 
-`rc_4.v` demonstrates an asynchronous counter using T flip-flops.
-
-The T input is held at:
-
-```text
-T = 1
-```
-
-so every active clock edge causes the corresponding flip-flop to toggle.
-
-```text
-T = 1
- ↓
-Toggle
-```
-
-The flip-flops are cascaded:
-
-```text
-CLK → TFF0 → TFF1 → TFF2 → TFF3
-```
-
-This shows that JK flip-flops are not the only storage elements suitable for ripple counters.
-
-A T flip-flop is particularly natural for counters because its primary operation is toggling.
+- Propagation delay accumulates across stages
+- Lower maximum operating frequency
+- Intermediate states can occur during transitions
+- Not ideal for high-speed synchronous systems
+- Timing analysis is more complicated
+- Ripple clocking can create clock-domain-like timing problems
+- Truncation logic can introduce additional asynchronous paths
 
 ---
 
-## JK Flip-Flop vs T Flip-Flop for Counters
+# Verification
 
-| Feature | JK Flip-Flop | T Flip-Flop |
-|---|---|---|
-| Toggle condition | `J=K=1` | `T=1` |
-| Inputs required | 2 | 1 |
-| Counter use | Configure for toggle | Direct toggle operation |
-| Main advantage | General-purpose FF | Simple counter implementation |
+The counter implementations can be verified by checking:
 
-A JK flip-flop can effectively be converted into a T flip-flop by connecting:
+- Reset operation
+- Binary counting sequence
+- Correct modulus
+- Frequency division
+- Flip-flop toggling
+- Ripple propagation
+- Truncation behavior
+- Counter rollover
+- Correct reset polarity
+- Correct terminal-state detection
 
-```text
-J = T
-K = T
-```
+Waveforms are particularly useful for observing the ripple behavior.
 
-For a permanent toggle:
-
-```text
-J = K = 1
-```
-
----
-
-## `ripple_counter.v` — Reusing the Repository JK Flip-Flop
-
-This implementation is important from a repository-design perspective because it reuses the existing JK flip-flop instead of defining another JK flip-flop.
-
-The dependency is:
-
-```text
-Sequential_Circuits/
-├── Flip_Flops/
-│   └── jk.v
-│
-└── Counters/
-    └── Asynchronous/
-        └── ripple_counter.v
-```
-
-The counter therefore depends on:
-
-```text
-Flip_Flops/jk.v
-```
-
-This demonstrates **hierarchical RTL design and module reuse**.
-
----
-
-## Repository Dependency
-
-The existing `jk.v` in the `Flip_Flops` folder has a six-port interface including both `q` and `qbar`.
-
-Therefore, when `ripple_counter.v` instantiates this module, its port connections must match that interface.
-
-The intended connection is conceptually:
-
-```verilog
-wire [3:0] qbar;
-
-jk tff0(1'b1,1'b1,clk,rst,q[0],qbar[0]);
-jk tff1(1'b1,1'b1,q[0],rst,q[1],qbar[1]);
-jk tff2(1'b1,1'b1,q[1],rst,q[2],qbar[2]);
-jk tff3(1'b1,1'b1,q[2],rst,q[3],qbar[3]);
-```
-
-The exact implementation should be kept consistent with the actual `jk.v` interface in the repository.
-
----
-
-## Truncated Counters
-
-A normal N-bit binary counter has:
-
-\[
-2^N
-\]
-
-states.
-
-A truncated counter intentionally uses fewer states.
-
-Examples:
-
-| Counter | Number of States |
-|---|---:|
-| MOD-4 | 4 |
-| MOD-6 | 6 |
-| MOD-10 | 10 |
-| MOD-12 | 12 |
-| MOD-16 | 16 |
-
-For example, a MOD-10 counter should follow:
+For example, a 4-bit counter should eventually show:
 
 ```text
 0000
@@ -536,542 +830,135 @@ For example, a MOD-10 counter should follow:
 0010
 0011
 0100
-0101
-0110
-0111
-1000
-1001
+...
+1111
 0000
 ```
 
-The states:
-
-```text
-1010 → 1111
-```
-
-are not part of the desired counting sequence.
+while also showing that the higher-order bits do not change at exactly the same instant as the lower-order bits.
 
 ---
 
-## `truncate.v` — Truncated Ripple Counter
+# Timing Considerations
 
-`truncate.v` demonstrates state decoding to truncate the normal counting sequence.
-
-The design uses combinational logic to detect a particular counter state.
-
-The detection logic includes:
-
-```verilog
-nand n1(trunc,q[3],q[1]);
-```
-
-which detects the condition:
-
-\[
-Q_3Q_1=1
-\]
-
-through the NAND output.
-
-The decoded condition is then combined with reset control.
+For a ripple counter, the accumulated propagation delay limits the maximum operating frequency.
 
 Conceptually:
 
 ```text
-Counter Outputs
-      │
-      ▼
-State Detection Logic
-      │
-      ▼
-Reset Control
-      │
-      ▼
-Counter returns to reset state
+T_CLK > N × t_PD + timing_margin
 ```
 
-This is the basic principle used to construct **MOD-N counters from larger binary counters**.
+where:
+
+```text
+T_CLK     = Clock period
+N         = Number of ripple stages
+t_PD      = Propagation delay per stage
+```
+
+Therefore:
+
+```text
+f_MAX ≈ 1 / T_MIN
+```
+
+As `N` increases, the total ripple delay increases.
+
+This is the primary reason synchronous counters are preferred for high-speed digital systems.
 
 ---
 
-## Why Truncated Counters Are Useful
+# Asynchronous vs Synchronous State Update
 
-A system may require a specific number of states rather than a power-of-two sequence.
-
-Examples:
-
-```text
-MOD-10 → Decimal/decade counting
-MOD-12 → Clock-related counting
-MOD-60 → Seconds/minutes
-MOD-24 → Hours
-```
-
-The basic approach is:
-
-```text
-Binary Counter
-      │
-      ▼
-Detect unwanted/terminal state
-      │
-      ▼
-Reset counter
-```
-
----
-
-## Propagation Delay in Ripple Counters
-
-The major limitation of an asynchronous counter is **accumulated propagation delay**.
-
-The state transition occurs stage by stage:
+### Asynchronous Counter
 
 ```text
 CLK
- ↓
+ │
+ ▼
 FF0
- ↓
+ │
+ ▼
 FF1
- ↓
+ │
+ ▼
 FF2
- ↓
+ │
+ ▼
 FF3
 ```
 
-Each flip-flop has a clock-to-Q delay.
+The state propagates stage-by-stage.
 
-For an N-stage ripple counter, the total ripple delay approximately grows with the number of stages:
-
-\[
-T_{ripple}\approx N \times t_{CQ}
-\]
-
-with additional delay depending on the actual implementation and interconnect.
-
-Therefore:
+### Synchronous Counter
 
 ```text
-More stages
-    ↓
-More accumulated delay
-    ↓
-Lower maximum operating frequency
+          ┌──► FF0
+          │
+CLK ──────┼──► FF1
+          │
+          ├──► FF2
+          │
+          └──► FF3
 ```
+
+All flip-flops receive the same clock.
 
 ---
 
-## Intermediate States During Ripple
+# Future Implementations
 
-Consider the transition:
+Possible future additions to this folder include:
 
-```text
-0111 → 1000
-```
-
-Ideally, four bits appear to change simultaneously.
-
-In an asynchronous counter, the transition propagates:
-
-```text
-0111
- ↓
-0110
- ↓
-0100
- ↓
-0000
- ↓
-1000
-```
-
-These intermediate states exist only because the flip-flops do not change at exactly the same instant.
-
-This can produce temporary glitches if the counter outputs are used directly by other logic.
+- Parameterized N-bit Ripple Counter
+- Ripple Up Counter
+- Ripple Down Counter
+- Ripple Up/Down Counter
+- Mod-N Ripple Counter
+- Decade Ripple Counter
+- Programmable Truncated Counter
+- Frequency Divider
+- Prescaler
+- Counter with Terminal Count
+- Counter with Enable
+- Counter with Overflow Detection
 
 ---
 
-## Frequency Division
-
-Every toggle flip-flop divides its input clock frequency by two.
-
-For a 4-bit ripple counter:
-
-\[
-f_{Q0}=\frac{f_{CLK}}{2}
-\]
-
-\[
-f_{Q1}=\frac{f_{CLK}}{4}
-\]
-
-\[
-f_{Q2}=\frac{f_{CLK}}{8}
-\]
-
-\[
-f_{Q3}=\frac{f_{CLK}}{16}
-\]
-
-Therefore:
-
-```text
-CLK
- │
- ├──► Q0 = CLK / 2
- │
- ├──► Q1 = CLK / 4
- │
- ├──► Q2 = CLK / 8
- │
- └──► Q3 = CLK / 16
-```
-
-This makes asynchronous counters useful as simple **clock-frequency dividers**.
-
----
-
-## Reset Behavior
-
-Reset behavior is not identical across all current implementations.
-
-### `rc_2.v`
-
-Uses:
-
-```verilog
-negedge rst
-```
-
-with:
-
-```verilog
-if(!rst)
-```
-
-Therefore:
-
-**Asynchronous active-low reset**
-
-```text
-RST = 0 → Q = 0
-```
-
-### `rc_3.v`
-
-Uses:
-
-```verilog
-posedge rst
-```
-
-with:
-
-```verilog
-if(rst)
-```
-
-Therefore:
-
-**Asynchronous active-high reset**
-
-```text
-RST = 1 → Q = 0
-```
-
-### `rc_4.v`
-
-The current implementation should be checked carefully because its reset sensitivity and reset condition are not aligned. Before treating it as final RTL, the reset polarity should be made consistent.
-
----
-
-## Parameterization
-
-The current counter implementations are primarily fixed 4-bit designs.
-
-For example:
-
-```text
-q[3:0]
-```
-
-represents four counter bits.
-
-A generalized counter can instead be written using:
-
-```verilog
-parameter N = 4
-```
-
-with:
-
-```verilog
-output [N-1:0] q;
-```
-
-Then:
-
-```text
-N = 3 → MOD-8
-N = 4 → MOD-16
-N = 5 → MOD-32
-N = 8 → MOD-256
-```
-
-This allows one RTL module to support multiple counter widths.
-
-A future modulo-parameterized implementation could additionally define:
-
-```text
-WIDTH
-MODULUS
-RESET_POLARITY
-COUNT_DIRECTION
-```
-
-to make the counter more reusable.
-
----
-
-## Verification
-
-Each counter has a dedicated testbench:
-
-```text
-rc_2.v
-   └──► rc_2_tb.v
-
-rc_3.v
-   └──► rc_3_tb.v
-
-rc_4.v
-   └──► rc_4_tb.v
-
-ripple_counter.v
-   └──► ripple_counter_tb.v
-
-truncate.v
-   └──► truncate_tb.v
-```
-
-The testbenches verify:
-
-- Reset behavior
-- Counting sequence
-- Clock response
-- Flip-flop cascading
-- Toggle operation
-- Truncated counting
-- Output state transitions
-- Frequency-division behavior
-
-Waveforms are dumped using:
-
-```verilog
-$fsdbDumpvars();
-```
-
-and can be inspected using a waveform viewer.
-
----
-
-## What to Observe in Waveforms
-
-For an asynchronous counter, the final count alone is not sufficient.
-
-Important observations include:
-
-### Clock Cascade
-
-```text
-CLK → FF0 → FF1 → FF2 → FF3
-```
-
-### Ripple Delay
-
-Check that later stages change after earlier stages.
-
-### Frequency Division
-
-```text
-Q0 → CLK/2
-Q1 → CLK/4
-Q2 → CLK/8
-Q3 → CLK/16
-```
-
-### Multi-Bit Transitions
-
-Pay particular attention to:
-
-```text
-0111 → 1000
-1111 → 0000
-```
-
-to observe the ripple behavior and intermediate transitions.
-
----
-
-## Advantages
-
-- Simple architecture
-- Low combinational hardware
-- Easy to construct from JK/T flip-flops
-- Natural frequency division
-- Useful for low-speed counting applications
-- Good for understanding sequential timing and ripple behavior
-
----
-
-## Limitations
-
-- Accumulated propagation delay
-- Lower maximum operating frequency
-- Intermediate/glitch states
-- Clock skew between stages
-- More difficult timing analysis
-- Not preferred for high-speed synchronous datapaths
-
-The propagation-delay limitation is the main reason to move from asynchronous counters to **synchronous counters**.
-
----
-
-## Applications
-
-Asynchronous counters can be used for:
-
-- Low-speed event counting
-- Frequency division
-- Simple timers
-- Clock-divider circuits
-- Basic sequencing
-- Educational and architectural demonstrations
-- Applications where ripple delay is acceptable
-
----
-
-## Future Implementations
-
-Possible extensions of this folder include:
-
-### Counter Variants
-
-- Parameterized N-bit ripple counter
-- Asynchronous up counter
-- Asynchronous down counter
-- Asynchronous up/down counter
-- Programmable modulo counter
-
-### Modulo Counters
-
-- MOD-3
-- MOD-5
-- MOD-6
-- MOD-10
-- MOD-12
-- MOD-60
-- Generic MOD-N counter
-
-### Additional Designs
-
-- Frequency divider
-- Ring counter
-- Johnson counter
-- Programmable ripple counter
-
-### RTL Improvements
-
-- Parameterized counter width
-- Parameterized modulus
-- Configurable count direction
-- Consistent reset polarity
-- Reusable JK/T flip-flop modules
-- Clean hierarchical module dependencies
-
----
-
-## Asynchronous Counter Design Flow
-
-```text
-Select Flip-Flop
-       │
-       ▼
-Configure for Toggle
-       │
-       ▼
-Connect first FF to external clock
-       │
-       ▼
-Cascade FF outputs as subsequent clocks
-       │
-       ▼
-Add reset
-       │
-       ▼
-Add state decoding if truncation is required
-       │
-       ▼
-Verify ripple transitions and timing
-```
-
----
-
-## Relationship to Synchronous Counters
-
-The main limitation observed in this folder is:
-
-```text
-FF0 → FF1 → FF2 → FF3
-```
-
-where every stage waits for the previous stage.
-
-A synchronous counter removes this ripple clocking:
-
-```text
-             ┌──► FF0
-             │
-             ├──► FF1
-CLK ─────────┼──► FF2
-             │
-             └──► FF3
-```
-
-All flip-flops receive the same clock, while combinational logic determines which flip-flops toggle.
-
-Therefore:
-
-```text
-Asynchronous Counter
-        ↓
-Understand ripple operation
-        ↓
-Understand propagation delay
-        ↓
-Synchronous Counter
-        ↓
-Common clock + next-state logic
-```
-
-The `Synchronous` folder will cover this architecture separately.
-
----
-
-## Key Takeaways
+# Key Takeaways
 
 - An asynchronous counter is also called a **ripple counter**.
 - Only the first flip-flop receives the external clock.
 - Subsequent flip-flops are clocked by preceding flip-flop outputs.
-- JK flip-flops can be configured for toggle operation using `J=K=1`.
-- T flip-flops naturally provide the required toggle operation using `T=1`.
-- `Q` versus `Q̅` and the active clock edge determine how the ripple propagates.
-- Each stage divides the input frequency by two.
-- A 4-bit binary counter is MOD-16.
-- Truncated counters use state decoding to obtain a smaller modulus.
-- Ripple propagation introduces accumulated clock-to-Q delay.
-- Intermediate states can occur during multi-bit transitions.
-- Asynchronous counters are simple but are generally unsuitable for high-speed synchronous datapaths.
-- `ripple_counter.v` demonstrates reuse of the existing `Flip_Flops/jk.v` module.
-- The current RTL should be cleaned for consistent port connections and reset behavior before final repository submission.
+- JK flip-flops can operate as toggle flip-flops using:
+
+```text
+J = 1
+K = 1
+```
+
+- An N-bit binary ripple counter has:
+
+```text
+MOD = 2^N
+```
+
+- Each flip-flop divides the frequency by 2.
+- The output frequencies are:
+
+```text
+Q0 = f_CLK / 2
+
+Q1 = f_CLK / 4
+
+Q2 = f_CLK / 8
+
+Q3 = f_CLK / 16
+```
+
+- Propagation delay accumulates from one stage to the next.
+- Higher-order bits change after lower-order stages have propagated.
+- Ripple counters are therefore slower than synchronous counters.
+- Truncated counters intentionally use fewer than `2^N` states.
+- Asynchronous counters are particularly useful for **frequency division, simple event counting, timing circuits, and low-speed digital systems**.
