@@ -1,0 +1,12 @@
+module sipo #(parameter N=8)(s_in,en,clk,rst,p_out);
+	input s_in,en,clk,rst;
+	output [N-1:0]p_out;
+	reg [N-1:0]q_reg;
+	always @(posedge clk or negedge rst) begin
+		if(!rst)
+			q_reg<=0;
+		else if(en)
+			q_reg<={s_in,q_reg[N-1:1]};
+	end
+	assign p_out=q_reg;
+endmodule
