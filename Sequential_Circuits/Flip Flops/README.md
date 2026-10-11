@@ -15,8 +15,8 @@ These designs extend the concept of **state storage introduced by the SR latch**
 
 ```text
 Flip_Flops/
-├── sr(1).v
-├── sr_tb(1).v
+├── sr.v
+├── sr_tb.v
 ├── jk.v
 ├── jk_tb.v
 ├── dff.v
@@ -28,8 +28,8 @@ Flip_Flops/
 
 | File | Description |
 |---|---|
-| `sr(1).v` | SR flip-flop RTL |
-| `sr_tb(1).v` | SR flip-flop testbench |
+| `sr.v` | SR flip-flop RTL |
+| `sr_tb.v` | SR flip-flop testbench |
 | `jk.v` | JK flip-flop RTL |
 | `jk_tb.v` | JK flip-flop testbench |
 | `dff.v` | D flip-flop RTL |
